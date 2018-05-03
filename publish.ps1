@@ -1,0 +1,1 @@
+pscp -r -pw raspberry .\artifacts\linux-arm\* pi@192.168.1.18:/home/pi/radio

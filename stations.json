@@ -1,0 +1,30 @@
+[
+    {
+        "name": "101.ru - Euro Hist",
+        "uri": "http://ic7.101.ru:8000/c16_13?"
+    },
+    {
+        "name": "101.ru - Korol&Shut",
+        "uri": "http://ic7.101.ru:8000/c13_31?"
+    },
+    {
+        "name": "Dance Wave!",
+        "uri": "http://stream.dancewave.online:8080/dance.mp3"
+    },
+    {
+        "name": "QMR",
+        "uri": "http://78.129.146.97:7027/stream"
+    },
+    {
+        "name": "Minsk 92.4",
+        "uri": "http://93.84.113.142:8000/radio"
+    },
+    {
+        "name": "101.ru - Piknik",
+        "uri": "http://ic7.101.ru:8000/a157?"
+    },
+    {
+        "name": "MUZO.FM",
+        "uri": "http://stream4.nadaje.com:8002/muzo"
+    }
+]
