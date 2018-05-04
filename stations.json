@@ -26,5 +26,9 @@
     {
         "name": "MUZO.FM",
         "uri": "http://stream4.nadaje.com:8002/muzo"
+    },
+    {
+        "name": "Enigma",
+        "uri": "http://ic7.101.ru:8000/a175"
     }
 ]
