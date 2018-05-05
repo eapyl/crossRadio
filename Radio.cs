@@ -1,5 +1,6 @@
 using System;
 using ManagedBass;
+using Serilog.Core;
 
 namespace rsRadio
 {
@@ -18,10 +19,12 @@ namespace rsRadio
     {
         private int _streamId = 0;
         private double _volume = 0.5;
+        private readonly Logger _log;
         private readonly StationManager _stationManager;
 
-        public Radio(StationManager stationManager)
+        public Radio(StationManager stationManager, Logger log)
         {
+            _log =  log;
             _stationManager = stationManager;
         }
 
@@ -29,6 +32,11 @@ namespace rsRadio
 
         public void Play(string uri)
         {
+            if (_streamId != 0)
+            {
+                _log.Verbose("Cleaned previous channel");
+                Bass.ChannelStop(_streamId);
+            }
             _streamId = Bass.CreateStream(uri, 0,
                 BassFlags.StreamDownloadBlocks | BassFlags.StreamStatus | BassFlags.AutoFree, null);
             

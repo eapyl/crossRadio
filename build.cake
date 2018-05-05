@@ -1,6 +1,8 @@
+#addin "Cake.Putty"
+
 var target = Argument("target", "Default");
-var runtime = Argument("runtime", "win-x64");
-//var runtime = Argument("runtime", "linux-arm");
+//var runtime = Argument("runtime", "win-x64");
+var runtime = Argument("runtime", "linux-arm");
 
 Task("Clean")
 .Does(() => {
@@ -49,7 +51,14 @@ Task("Copy-Bass")
     
 });
 
+Task("Deploy")
+.WithCriteria(runtime == "linux-arm")
+.Does(() => {
+    Pscp("./artifacts/linux-arm/*", "192.168.1.18:/home/pi/radio", new PscpSettings{ Password = "raspberry", User = "pi" });
+});
+
 Task("Default")
-.IsDependentOn("Copy-Bass");
+.IsDependentOn("Copy-Bass")
+.IsDependentOn("Deploy");
 
 RunTarget(target);
