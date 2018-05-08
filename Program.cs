@@ -47,7 +47,7 @@ namespace rsRadio
                         radio.Start();
                         break;
                     case BotCommand.Stop:
-                        radio.Stop();
+                        exit = true;
                         break;
                     case BotCommand.VolumeUp:
                         radio.VolumeUp();

@@ -57,8 +57,15 @@ Task("Deploy")
     Pscp("./artifacts/linux-arm/*", "192.168.1.18:/home/pi/radio", new PscpSettings{ Password = "raspberry", User = "pi" });
 });
 
+Task("Run")
+.IsDependentOn("Deploy")
+.WithCriteria(runtime == "linux-arm")
+.Does(() => {
+    Plink("192.168.1.18", "cd /home/pi/radio; nohup ./rsRadio &", new PlinkSettings { Password = "raspberry", User = "pi" });
+});
+
 Task("Default")
 .IsDependentOn("Copy-Bass")
-.IsDependentOn("Deploy");
+.IsDependentOn("Run");
 
 RunTarget(target);
