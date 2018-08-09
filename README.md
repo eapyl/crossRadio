@@ -32,6 +32,7 @@ Supported commands:
 * `-vu`, `--volumeUp` - increase volume;
 * `-vd`, `--volumeDown` - decrease volume;
 * `-s`, `--stop` - Stop playing and exit.
+* `-db {uri}`, `--database {uri}` - Change a link to database with radio stations (default - https://github.com/eapyl/radio-stations/blob/master/db.json).
 
 All descriptions of station are hosted at [GitHub](https://github.com/eapyl/radio-stations/blob/master/db.json).
 

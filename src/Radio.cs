@@ -20,7 +20,7 @@ namespace plr
     {
         
         private int _streamId = 0;
-        private double _volume = 0.5;
+        private double _volume = 0.2;
         private readonly StationManager _stationManager;
 
         public Radio(StationManager stationManager)
@@ -50,8 +50,8 @@ namespace plr
 
         public void Stop() => Bass.Stop();
 
-        public void VolumeUp() => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume < 1 ? _volume += 0.2 : _volume);
+        public void VolumeUp() => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume < 1 ? _volume += 0.1 : _volume);
 
-        public void VolumeDown() => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume > 0 ? _volume -= 0.2 : _volume);
+        public void VolumeDown() => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume > 0 ? _volume -= 0.1 : _volume);
     }
 }

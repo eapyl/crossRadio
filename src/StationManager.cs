@@ -8,7 +8,7 @@ namespace plr
 {
     internal class StationManager
     {
-        private string _databaseLink = string.Empty;
+        private Settings _settings { get; }
 
         private IList<Station> _stations = new List<Station>();
 
@@ -20,14 +20,14 @@ namespace plr
 
         public Station Current {get { return _stations.Any() ? _stations.First() : null; } }
 
-        public StationManager(string databaseLink)
+        public StationManager(Settings settings)
         {
-            _databaseLink = databaseLink;
+            _settings = settings;
         }
 
         public async Task LoadStation()
         {
-            _stations = await _databaseLink.GetJsonAsync<List<Station>>();
+            _stations = await _settings.DatabaseLink.GetJsonAsync<List<Station>>();
             var i = 0;
             foreach (var st in _stations)
                 st.Id = i++;
