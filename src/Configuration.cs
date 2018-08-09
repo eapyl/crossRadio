@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +24,6 @@ namespace plr
         }
 
         public async Task<Settings> Load() =>
-            JsonConvert.DeserializeObject<Settings>(await _fileContent(_fileName));
+            JsonConvert.DeserializeObject<Settings>(await _fileContent(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), _fileName)));
     }
 }
