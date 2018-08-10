@@ -41,7 +41,10 @@ namespace plr
                 BassFlags.StreamDownloadBlocks | BassFlags.StreamStatus | BassFlags.AutoFree, null);
             
             if (_streamId != 0)
+            {
+                Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume);
                 Bass.ChannelPlay(_streamId);
+            }
         }
 
         public void Pause() => Bass.Pause();
