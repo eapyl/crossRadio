@@ -12,13 +12,12 @@ namespace plr
         void Pause();
         void Start();
         void Stop();
-        void VolumeUp();
-        void VolumeDown();
+        void VolumeUp(double delta = 0.1);
+        void VolumeDown(double delta = 0.1);
     }
 
     internal class Radio: IRadio
     {
-        
         private int _streamId = 0;
         private double _volume = 0.2;
         private readonly StationManager _stationManager;
@@ -53,8 +52,8 @@ namespace plr
 
         public void Stop() => Bass.Stop();
 
-        public void VolumeUp() => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume < 1 ? _volume += 0.1 : _volume);
+        public void VolumeUp(double delta = 0.1) => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume + delta <= 1 ? _volume += delta : _volume);
 
-        public void VolumeDown() => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume > 0 ? _volume -= 0.1 : _volume);
+        public void VolumeDown(double delta = 0.1) => Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume - delta >= 0 ? _volume -= delta : _volume);
     }
 }

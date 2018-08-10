@@ -47,7 +47,19 @@ namespace plr
                     var mainCommand = parts[0];
                     switch (mainCommand)
                     {
-                        case "":
+                        case "-h":
+                        case "--help":
+                            Console.WriteLine("List of supported commands:");
+                            Console.WriteLine("  -h, --help: Show descriptopn of all commands;");
+                            Console.WriteLine("  -l, --list: Show all stations from database;");
+                            Console.WriteLine("  -p {ID}, --play {ID}: Play selected station using ID of station;");
+                            Console.WriteLine("  -pa, --pause: Pause playing;");
+                            Console.WriteLine("  -st, --start: Start play after pause;");
+                            Console.WriteLine("  -vu [delta], --volumeUp [delta]: Increase volume by default value or defined by [delta];");
+                            Console.WriteLine("  -vd [delta], --volumeDown [delta]: Decrease volume by default value or defined by [delta];");
+                            Console.WriteLine("  -s, --stop: Stop plaing and exit;");
+                            Console.WriteLine("  -db {uri}, --database {uri}: Change link to database (default value is https://raw.githubusercontent.com/eapyl/radio-stations/master/db.json);");
+                            break;
                         case "--list":
                         case "-l":
                             Log.Verbose("Received list command.");
@@ -89,13 +101,29 @@ namespace plr
                             break;
                         case "--volumeUp":
                         case "-vu":
-                            Log.Verbose("Received volume Down command.");
-                            radio.VolumeUp();
+                            Log.Verbose("Received volume Up command.");
+                            if (parts.Length > 1 && Double.TryParse(parts[1], out double deltaUp))
+                            {
+                                Log.Verbose($"Increase volume by {deltaUp}");
+                                radio.VolumeUp(deltaUp);
+                            }
+                            else
+                            {
+                                radio.VolumeUp();
+                            }
                             break;
                         case "--volumeDown":
                         case "-vd":
-                            Log.Verbose("Received volume Up command.");
-                            radio.VolumeDown();
+                            Log.Verbose("Received volume Down command.");
+                            if (parts.Length > 1 && Double.TryParse(parts[1], out double deltaDown))
+                            {
+                                Log.Verbose($"Decrease volume by {deltaDown}");
+                                radio.VolumeDown(deltaDown);
+                            }
+                            else
+                            {
+                                radio.VolumeDown();
+                            }
                             break;
                         case "--stop":
                         case "-s":
