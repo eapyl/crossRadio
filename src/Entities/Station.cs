@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace plr
+namespace plr.Entities
 {
     internal class Station
     {

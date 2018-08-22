@@ -2,6 +2,7 @@ using System;
 using Serilog;
 using Serilog.Core;
 using plr.bss;
+using plr.Providers;
 
 namespace plr
 {
@@ -20,12 +21,6 @@ namespace plr
     {
         private int _streamId = 0;
         private double _volume = 0.2;
-        private readonly StationManager _stationManager;
-
-        public Radio(StationManager stationManager)
-        {
-            _stationManager = stationManager;
-        }
 
         public bool Init() => Bass.Init();
 
