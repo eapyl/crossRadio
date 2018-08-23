@@ -28,24 +28,24 @@ namespace plr.Commands
             _radio = radio;
         }
 
-        public Task<CommandResult> Execute(IEnumerable<string> parameters)
+        public async Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
             _log.Verbose("Received play command.");
             if (parameters.Count() > 0 && Int32.TryParse(parameters.First(), out int id))
             {
-                var station = _stationProvider.Search(id);
+                var station = await _stationProvider.Search(id);
                 if (station == null)
                 {
                     _output("No station with provided ID");
                     _log.Error("There is no station with selected ID.");
-                    return Task.FromResult(CommandResult.Error);
+                    return CommandResult.Error;
                 }
                 _radio.Play(station.Uri.First().ToString());
-                return Task.FromResult(CommandResult.OK);
+                return CommandResult.OK;
             }
              _output("Can't parse ID");
             _log.Error("Id of station should be number.");
-            return Task.FromResult(CommandResult.Error);
+            return CommandResult.Error;
         }
     }
 }

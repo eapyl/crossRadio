@@ -7,9 +7,11 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>radio</ToolCommandName>
     <Version>1.0.3</Version>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DryIoc.dll" Version="3.0.2" />
     <PackageReference Include="FluentValidation" Version="8.0.0" />
     <PackageReference Include="Flurl.Http" Version="2.3.1" />
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />

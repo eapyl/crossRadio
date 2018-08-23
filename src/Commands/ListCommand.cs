@@ -21,12 +21,12 @@ namespace plr.Commands
             _stationProvider = stationProvider;
         }
 
-        public Task<CommandResult> Execute(IEnumerable<string> parameters)
+        public async Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
             _log.Verbose("Received list command.");
-            foreach (var station in _stationProvider.Search())
+            foreach (var station in await _stationProvider.Search())
                 _output(station.ToString());
-            return Task.FromResult(CommandResult.OK);
+            return CommandResult.OK;
         }
     }
 }

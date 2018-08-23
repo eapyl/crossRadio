@@ -36,7 +36,7 @@ namespace plr.Commands
                 var configuration = await _configurationProvider.Load();
                 configuration.DatabaseLink = url.ToString();
                 await _configurationProvider.Upload(configuration);
-                await _stationProvider.LoadStation();
+                _stationProvider.Reset();
                 return CommandResult.OK;
             }
             _output("Can't parse provided url");

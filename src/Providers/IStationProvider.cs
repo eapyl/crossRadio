@@ -6,9 +6,9 @@ namespace plr.Providers
 {
     internal interface IStationProvider
     {
-        Task LoadStation();
-        Station Current { get; }
-        Station Search(int id);
-        IList<Station> Search(string name = null);
+        Task<Station> Current();
+        void Reset();
+        Task<Station> Search(int id);
+        Task<IEnumerable<Station>> Search(string name = null);
     }
 }
