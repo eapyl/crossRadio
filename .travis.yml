@@ -5,6 +5,5 @@ sudo: required
 mono: none
 dotnet: 2.1.401
 script:
-    - dotnet restore
     - dotnet build
     - dotnet test ./test/test.csproj
