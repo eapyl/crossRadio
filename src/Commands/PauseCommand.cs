@@ -25,15 +25,7 @@ namespace plr.Commands
         public Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
             _log.Verbose("Received volume Up command.");
-            if (parameters.Any() && Double.TryParse(parameters.First(), out double deltaUp))
-            {
-                Log.Verbose($"Increase volume by {deltaUp}");
-                _radio.VolumeUp(deltaUp);
-            }
-            else
-            {
-                _radio.VolumeUp();
-            }
+            _radio.Pause();
             return Task.FromResult(CommandResult.OK);
         }
     }

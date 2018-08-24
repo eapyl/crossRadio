@@ -28,5 +28,14 @@ namespace test.Commands
             A.CallTo(output).MustHaveHappenedANumberOfTimesMatching(n => n == 10);
             Assert.Equal(CommandResult.OK, result);
         }
+
+        [Fact]
+        public void CheckName()
+        {
+            var command = new HelpCommand((s) => { });
+
+            Assert.Contains("-h", command.Name);
+            Assert.Contains("--help", command.Name);
+        }
     }
 }

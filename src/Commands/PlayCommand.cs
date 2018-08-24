@@ -31,7 +31,7 @@ namespace plr.Commands
         public async Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
             _log.Verbose("Received play command.");
-            if (parameters.Count() > 0 && Int32.TryParse(parameters.First(), out int id))
+            if (parameters.Any() && Int32.TryParse(parameters.First(), out int id))
             {
                 var station = await _stationProvider.Search(id);
                 if (station == null)

@@ -41,7 +41,7 @@ namespace plr.Providers
             return _stations;
         }
 
-        public async Task<IEnumerable<Station>> LoadStation()
+        internal async Task<IEnumerable<Station>> LoadStation()
         {
             _log.Verbose("Load station from database");
             var configuration = await _configurationProvider.Load();

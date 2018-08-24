@@ -10,6 +10,12 @@ namespace plr
     {
         private int _streamId = 0;
         private double _volume = 0.2;
+        private readonly ILogger _log;
+
+        public Radio(ILogger log)
+        {
+            _log = log;
+        }
 
         public bool Init() => Bass.Init();
 
@@ -17,7 +23,7 @@ namespace plr
         {
             if (_streamId != 0)
             {
-                Log.Verbose("Cleaned previous channel");
+                _log.Verbose("Cleaned previous channel");
                 Bass.ChannelStop(_streamId);
             }
             _streamId = Bass.CreateStream(uri, 0,

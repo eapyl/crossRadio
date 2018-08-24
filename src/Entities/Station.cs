@@ -17,7 +17,7 @@ namespace plr.Entities
         public string Country { get; set; }
 
         [JsonProperty("style")]
-        public string[] Style { get; set; }
+        public string[] Style { get; set; } = new [] {"None"};
 
         [JsonProperty("language")]
         public string[] Language { get; set; }

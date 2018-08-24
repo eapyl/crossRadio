@@ -47,5 +47,17 @@ namespace test.Commands
             A.CallTo(() => stationProvider.Reset()).MustNotHaveHappened();
             Assert.Equal(CommandResult.Error, result);
         }
+
+        [Fact]
+        public void CheckName()
+        {
+            var log = A.Fake<ILogger>();
+            var configurationProvider = A.Fake<IConfigurationProvider>();
+            var stationProvider = A.Fake<IStationProvider>();
+            var command = new DatabaseCommand(log, s => {}, configurationProvider, stationProvider);
+
+            Assert.Contains("-d", command.Name);
+            Assert.Contains("--database", command.Name);
+        }
     }
 }
