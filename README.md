@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/eapyl/crossRadio.svg?branch=master)](https://travis-ci.org/eapyl/crossRadio)
+
 # Dotnet global tool to listen radio
 
 > Supported OS: Windows
