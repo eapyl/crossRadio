@@ -1,2 +1,8 @@
 language: csharp
 solution: plr.sln
+dist: trusty
+sudo: required
+mono: none
+dotnet: 2.1.401
+script:
+  - ./build.sh --quiet verify
