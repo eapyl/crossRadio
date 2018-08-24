@@ -3,4 +3,4 @@ obj
 /tools/
 log-*
 .vscode/
-/test
+lcov.info
