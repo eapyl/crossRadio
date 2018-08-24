@@ -6,4 +6,4 @@ mono: none
 dotnet: 2.1.401
 script:
     - dotnet build
-    - dotnet test ./test/test.csproj
+    - dotnet test ./test/plr-tests.csproj
