@@ -40,7 +40,7 @@ namespace plr.Commands
                 return CommandResult.OK;
             }
             _output("Can't parse provided url");
-            Log.Error("Url to database is incorrect.");
+            _log.Error("Url to database is incorrect.");
             return CommandResult.Error;
         }
     }
