@@ -10,7 +10,7 @@ namespace plr.Providers
 {
     internal class StationProvider : IStationProvider
     {
-        private IEnumerable<Station> _stations;
+        private IList<Station> _stations;
         private readonly ILogger _log;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly StationValidator _stationValidator;
@@ -37,13 +37,13 @@ namespace plr.Providers
         {
             // TODO: multithreading ??
             if (_stations == null)
-                _stations = await LoadStation();
+                _stations = (await LoadStation()).ToList();
             return _stations;
         }
 
         internal async Task<IEnumerable<Station>> LoadStation()
         {
-            _log.Verbose("Load station from database");
+            _log.Verbose("Load stations from database");
             var configuration = await _configurationProvider.Load();
             var i = 0;
             return (await configuration.DatabaseLink.GetJsonAsync<List<Station>>()).Where(x =>

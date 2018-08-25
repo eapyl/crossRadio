@@ -122,5 +122,30 @@ namespace test.Providers
             }
             A.CallTo(() => logger.Error(A<string>._)).MustHaveHappened();
         }
+
+        [Fact]
+        public async Task StationShouldBeSavedInMemory()
+        {
+            var logger = A.Fake<ILogger>();
+            var configurationProvider = A.Fake<IConfigurationProvider>();
+
+            A.CallTo(() => configurationProvider.Load()).Returns(new Configuration {DatabaseLink = "http://test"});
+
+            var provider = new StationProvider(logger, configurationProvider, new StationValidator());
+            using (var httpTest = new HttpTest())
+            {
+                httpTest.RespondWithJson(new[] { new {
+                    Name = "Station",
+                    Uri = new [] { "http:\\\\test" },
+                    Country = "Station",
+                    Language = new [] { "Station" }
+                }});
+                var result = await provider.Search();
+                Assert.Contains(result, x => x.Id == 0);
+
+                result = await provider.Search();
+                Assert.Contains(result, x => x.Id == 0);
+            }
+        }
     }
 }
