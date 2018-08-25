@@ -4,3 +4,6 @@ obj
 log-*
 .vscode/
 lcov.info
+key.cake
+coverage.opencover.xml
+artifacts
