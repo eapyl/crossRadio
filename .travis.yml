@@ -1,9 +1,15 @@
 language: csharp
+os: linux
 solution: plr.sln
 dist: trusty
 sudo: required
 mono: none
 dotnet: 2.1.401
+env:
+  global:
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+    - DOTNET_CLI_TELEMETRY_OPTOUT=1
+    - CAKE_VERSION: 0.30.0
 before_install:
     - chmod +x build.sh
 script:
