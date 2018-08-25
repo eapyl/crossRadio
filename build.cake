@@ -38,7 +38,7 @@ Task("Test-With-Coverage")
   .Does(() =>
 {
     StartProcess("dotnet", new ProcessSettings {
-        Arguments = "test ./test/plr-tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -o ./../artifacts/"
+        Arguments = "test ./test/plr-tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude=\"[plr]plr.BassLib*\" -o ./../artifacts/"
     });
 });
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace plr.bss
+namespace plr.BassLib
 {
      /// <summary>
     /// Internet stream download callback function (to be used with <see cref="Bass.CreateStream(string,int,BassFlags,DownloadProcedure,IntPtr)" />).
