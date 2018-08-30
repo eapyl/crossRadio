@@ -27,6 +27,7 @@ Common way to start listening the first radio from the list:
 ```
 
 Supported commands:
+* `{no command}` - Show status of radio;
 * `-h`, `--help` - Show descriptopn of all commands;
 * `-l`, `--list` - Show list of radio stations;
 * `-p {id}`, `--play {id}` - Play selected station using ID of station;

@@ -18,6 +18,7 @@ namespace plr.Commands
         public Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
             _output("List of supported commands:");
+            _output("  {no command}: Show status of radio;");
             _output("  -h, --help: Show descriptopn of all commands;");
             _output("  -l, --list: Show all stations from database;");
             _output("  -p {ID}, --play {ID}: Play selected station using ID of station;");
