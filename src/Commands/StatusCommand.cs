@@ -7,33 +7,28 @@ using Serilog;
 
 namespace plr.Commands
 {
-    internal class VolumeUpCommand : ICommand
+    internal class StatusCommand : ICommand
     {
         private readonly ILogger _log;
+        private readonly Action<string> _output;
         private readonly IRadio _radio;
 
-        public string[] Name => new [] { "-vu", "--volumeUp" };
+        public string[] Name => new [] { string.Empty };
 
-        public VolumeUpCommand(
+        public StatusCommand(
             ILogger log,
+            Action<string> output,
             IRadio radio)
         {
             _log = log;
+            _output = output;
             _radio = radio;
         }
 
         public Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
-            _log.Verbose("Received volume Up command.");
-            if (parameters.Any() && Int32.TryParse(parameters.First(), out int deltaUp))
-            {
-                _log.Verbose($"Increase volume by {deltaUp}");
-                _radio.VolumeUp(deltaUp);
-            }
-            else
-            {
-                _radio.VolumeUp();
-            }
+            _log.Verbose("Received status command.");
+            _output(_radio.Status());
             return Task.FromResult(CommandResult.OK);
         }
     }

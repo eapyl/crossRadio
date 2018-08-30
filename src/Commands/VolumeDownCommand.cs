@@ -25,7 +25,7 @@ namespace plr.Commands
         public Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
             _log.Verbose("Received volume Down command.");
-            if (parameters.Any() && Double.TryParse(parameters.First(), out double deltaDown))
+            if (parameters.Any() && Int32.TryParse(parameters.First(), out int deltaDown))
             {
                 _log.Verbose($"Decrease volume by {deltaDown}");
                 _radio.VolumeDown(deltaDown);

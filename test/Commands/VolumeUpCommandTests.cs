@@ -32,7 +32,7 @@ namespace test.Commands
             var command = new VolumeUpCommand(log, radio);
 
             var result = await command.Execute(new string[0]);
-            A.CallTo(() => radio.VolumeUp(A<double>.That.IsEqualTo(0.1))).MustHaveHappened();
+            A.CallTo(() => radio.VolumeUp(A<int>.That.IsEqualTo(10))).MustHaveHappened();
             Assert.Equal(CommandResult.OK, result);
         }
 
@@ -44,8 +44,8 @@ namespace test.Commands
 
             var command = new VolumeUpCommand(log, radio);
 
-            var result = await command.Execute(new string[]{ "0.5" });
-            A.CallTo(() => radio.VolumeUp(A<double>.That.IsEqualTo(0.5))).MustHaveHappened();
+            var result = await command.Execute(new string[]{ "50" });
+            A.CallTo(() => radio.VolumeUp(A<int>.That.IsEqualTo(50))).MustHaveHappened();
             Assert.Equal(CommandResult.OK, result);
         }
 

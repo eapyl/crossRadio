@@ -42,8 +42,8 @@ namespace plr
                 while (true)
                 {
                     var parts = _input().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length == 0) continue;
-                    var command = _commands.FirstOrDefault(x => x.Name.Any(name => name == parts[0]));
+                    var commandName = parts.Length == 0 ? string.Empty : parts[0];
+                    var command = _commands.FirstOrDefault(x => x.Name.Any(name => name == commandName));
                     if (command == null) continue;
                     var result = await command.Execute(parts.Skip(1));
                     if (result == CommandResult.Exit) break;

@@ -33,6 +33,7 @@ namespace plr
             container.Register<ICommand, PlayCommand>();
             container.Register<ICommand, StartCommand>();
             container.Register<ICommand, StopCommand>();
+            container.Register<ICommand, StatusCommand>();
             container.Register<ICommand, VolumeUpCommand>();
             container.Register<ICommand, VolumeDownCommand>();
             container.Register<IMainLoop, MainLoop>(reuse: Reuse.Singleton);

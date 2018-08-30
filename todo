@@ -1,0 +1,14 @@
+☐ Add proxy for bass library and use it in Radio class
+☐ Recover playing after long pause @bug @1.0.4
+☐ Support different output device @bug
+☐ Ask to use standard repository when changing database url
+☐ Save previous volume @enhancement @1.0.4
+☐ Add status command to understand what is going on @enhancement @1.0.4
+☐ Create a tool to delete obsolete station from database
+☐ Add support for Ubuntu 16
+☐ Add featured station lists @enhancement
+☐ Save previous played radio station @enhancement @1.0.4
+☐ Add pagination to search results @enhancement
+☐ Allow possibility to search stations @enhancement
+Archive:
+    ✔ Use ManagedBass instead custom class @1.0.4 @done(18-08-30 22:43)

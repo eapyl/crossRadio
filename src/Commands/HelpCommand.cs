@@ -23,8 +23,8 @@ namespace plr.Commands
             _output("  -p {ID}, --play {ID}: Play selected station using ID of station;");
             _output("  -pa, --pause: Pause playing;");
             _output("  -st, --start: Start play after pause;");
-            _output("  -vu [delta], --volumeUp [delta]: Increase volume by default value or defined by [delta];");
-            _output("  -vd [delta], --volumeDown [delta]: Decrease volume by default value or defined by [delta];");
+            _output("  -vu [delta], --volumeUp [delta]: Increase volume by 10% or defined by [delta]%");
+            _output("  -vd [delta], --volumeDown [delta]: Decrease volume by 10% or defined by [delta]%;");
             _output("  -s, --stop: Stop plaing and exit;");
             _output("  -db {uri}, --database {uri}: Change link to database (default value is https://raw.githubusercontent.com/eapyl/radio-stations/master/db.json);");
             return Task.FromResult(CommandResult.OK);

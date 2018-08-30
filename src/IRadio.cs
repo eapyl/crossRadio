@@ -7,7 +7,8 @@ namespace plr
         void Pause();
         void Start();
         void Stop();
-        void VolumeUp(double delta = 0.1);
-        void VolumeDown(double delta = 0.1);
+        void VolumeUp(int delta = 10);
+        void VolumeDown(int delta = 10);
+        string Status();
     }
 }

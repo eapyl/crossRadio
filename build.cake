@@ -20,7 +20,7 @@ Task("Build")
     {
         Framework = "netcoreapp2.1",
         Configuration = "Debug",
-        OutputDirectory = "./../artifacts/"
+        OutputDirectory = "./artifacts/"
     };
 
     DotNetCoreBuild("./plr.sln", settings);
@@ -29,26 +29,35 @@ Task("Build")
 Task("Test")
   .Does(() =>
 {
-    StartProcess("dotnet", new ProcessSettings {
-        Arguments = "test ./test/plr-tests.csproj -o ./artifacts/"
-    });
+    var settings = new DotNetCoreTestSettings
+    {
+        Configuration = "Debug",
+        OutputDirectory = "./../artifacts/"
+    };
+
+    DotNetCoreTest("./test/plr-tests.csproj", settings);
 });
 
 Task("Test-With-Coverage")
   .Does(() =>
 {
-    StartProcess("dotnet", new ProcessSettings {
-        Arguments = "test ./test/plr-tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude=\"[plr]plr.BassLib*\" -o ./../artifacts/"
-    });
+    var settings = new DotNetCoreTestSettings
+    {
+        Configuration = "Debug",
+        OutputDirectory = "./../artifacts/",
+        ArgumentCustomization = args =>
+            args.Append("/p:CollectCoverage=true")
+                .Append("/p:CoverletOutputFormat=opencover")
+                .Append("/p:Exclude=\"[plr]plr.BassLib*\"")
+    };
+
+    DotNetCoreTest("./test/plr-tests.csproj", settings);
 });
 
 Task("Generate-Coverage")
   .Does(() =>
 {
-    StartProcess("dotnet", new ProcessSettings {
-        Arguments = "reportgenerator -reports:coverage.opencover.xml -targetDir:./../artifacts/coverage",
-        WorkingDirectory = ".\\test"
-    });
+    DotNetCoreTool("./test/plr-tests.csproj", "reportgenerator", "-reports:coverage.opencover.xml -targetDir:./../artifacts/coverage");
 });
 
 Task("Default")
