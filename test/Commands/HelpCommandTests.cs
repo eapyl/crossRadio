@@ -25,7 +25,7 @@ namespace test.Commands
             var command = new HelpCommand(output);
 
             var result = await command.Execute(new string[0]);
-            A.CallTo(output).MustHaveHappenedANumberOfTimesMatching(n => n == 10);
+            A.CallTo(output).MustHaveHappenedANumberOfTimesMatching(n => n == 11);
             Assert.Equal(CommandResult.OK, result);
         }
 
