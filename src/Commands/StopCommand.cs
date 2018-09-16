@@ -14,6 +14,8 @@ namespace plr.Commands
 
         public string[] Name => new [] { "-s", "--stop" };
 
+        public string Description => "Stop playing and exit";
+
         public StopCommand(
             ILogger log,
             IRadio radio)

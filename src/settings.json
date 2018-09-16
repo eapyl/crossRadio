@@ -1,3 +1,5 @@
 {
-    "databaseLink" : "https://raw.githubusercontent.com/eapyl/radio-stations/master/db.json"
+    "databaseLink" : "https://raw.githubusercontent.com/eapyl/radio-stations/master/db.json",
+    "volume" : "10",
+    "link" : "http://ic7.101.ru:8000/c16_13?"
 }

@@ -58,6 +58,7 @@ namespace test.Commands
 
             Assert.Contains("-d", command.Name);
             Assert.Contains("--database", command.Name);
+            Assert.Contains("Change {link} to database (default value is https://raw.githubusercontent.com/eapyl/radio-stations/master/db.json)", command.Description);
         }
     }
 }

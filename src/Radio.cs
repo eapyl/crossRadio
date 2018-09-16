@@ -3,21 +3,32 @@ using Serilog;
 using Serilog.Core;
 using plr.Providers;
 using ManagedBass;
+using System.Threading.Tasks;
 
 namespace plr
 {
     internal class Radio : IRadio
     {
         private int _streamId = 0;
+        private int deltaVolume = 10;
         private double _volume = 0.2;
         private readonly ILogger _log;
+        private readonly IConfigurationProvider _configurationProvider;
 
-        public Radio(ILogger log)
+        public Radio(
+            IConfigurationProvider configurationProvider,
+            ILogger log)
         {
             _log = log;
+            _configurationProvider = configurationProvider;
         }
 
-        public bool Init() => Bass.Init();
+        public async Task<bool> Init()
+        {
+            var configuration = await _configurationProvider.Load();
+            _volume =  Convert.ToDouble(configuration.Volume);
+            return Bass.Init();
+        }
 
         public void Play(string uri)
         {
@@ -63,14 +74,23 @@ namespace plr
 
         public void Stop() => Bass.Stop();
 
-        public void VolumeUp(int delta = 10) =>
-            Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume,
-                _volume + AdjustVolumeDelta(delta) <= 1 ? _volume += AdjustVolumeDelta(delta) : _volume);
+        public double VolumeUp() => UpdateVolume(_volume + AdjustVolumeDelta(deltaVolume));
 
-        public void VolumeDown(int delta = 10) =>
-            Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume,
-                _volume - AdjustVolumeDelta(delta) >= 0 ? _volume -= AdjustVolumeDelta(delta) : _volume);
+        public double VolumeDown() => UpdateVolume(_volume - AdjustVolumeDelta(deltaVolume));
 
-        private double AdjustVolumeDelta(int delta) => delta / 100;
+        public double Volume(int value) => UpdateVolume(AdjustVolumeDelta(value));
+
+        private double UpdateVolume(double volume)
+        {
+            if (volume >= 0 && volume <= 1)
+            {
+                _log.Verbose($"New volume {volume}");
+                _volume = volume;
+                Bass.ChannelSetAttribute(_streamId, ChannelAttribute.Volume, _volume);
+            }
+            return _volume;
+        }
+
+        private double AdjustVolumeDelta(int delta) => delta * 1.0 / 100;
     }
 }

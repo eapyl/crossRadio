@@ -18,8 +18,9 @@ namespace test.Commands
         {
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
+            var provider = A.Fake<IConfigurationProvider>();
 
-            var command = new VolumeUpCommand(log, radio);
+            var command = new VolumeUpCommand(log, provider, radio);
             Assert.NotNull(command);
         }
 
@@ -28,24 +29,12 @@ namespace test.Commands
         {
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
+            var provider = A.Fake<IConfigurationProvider>();
 
-            var command = new VolumeUpCommand(log, radio);
+            var command = new VolumeUpCommand(log, provider, radio);
 
             var result = await command.Execute(new string[0]);
-            A.CallTo(() => radio.VolumeUp(A<int>.That.IsEqualTo(10))).MustHaveHappened();
-            Assert.Equal(CommandResult.OK, result);
-        }
-
-        [Fact]
-        public async Task ExecuteWithValue()
-        {
-            var log = A.Fake<ILogger>();
-            var radio = A.Fake<IRadio>();
-
-            var command = new VolumeUpCommand(log, radio);
-
-            var result = await command.Execute(new string[]{ "50" });
-            A.CallTo(() => radio.VolumeUp(A<int>.That.IsEqualTo(50))).MustHaveHappened();
+            A.CallTo(() => radio.VolumeUp()).MustHaveHappened();
             Assert.Equal(CommandResult.OK, result);
         }
 
@@ -54,11 +43,13 @@ namespace test.Commands
         {
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
+            var provider = A.Fake<IConfigurationProvider>();
 
-            var command = new VolumeUpCommand(log, radio);
+            var command = new VolumeUpCommand(log, provider, radio);
 
             Assert.Contains("-vu", command.Name);
             Assert.Contains("--volumeUp", command.Name);
+            Assert.Contains("Increase volume by 10%", command.Description);
         }
     }
 }

@@ -14,6 +14,8 @@ namespace plr.Commands
 
         public string[] Name => new [] { "-pa", "--pause" };
 
+        public string Description => "Pause playing";
+
         public PauseCommand(
             ILogger log,
             IRadio radio)

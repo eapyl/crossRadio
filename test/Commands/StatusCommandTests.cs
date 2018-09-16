@@ -48,6 +48,7 @@ namespace test.Commands
             var command = new StatusCommand(log, output, radio);
 
             Assert.Contains(string.Empty, command.Name);
+            Assert.Contains("Show status of radio", command.Description);
         }
     }
 }

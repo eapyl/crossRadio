@@ -14,6 +14,8 @@ namespace plr.Commands
 
         public string[] Name => new [] { "-st", "--start" };
 
+        public string Description => "Start play after pause";
+
         public StartCommand(
             ILogger log,
             IRadio radio)

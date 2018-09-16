@@ -32,6 +32,7 @@ namespace plr
             container.Register<ICommand, PauseCommand>();
             container.Register<ICommand, PlayCommand>();
             container.Register<ICommand, StartCommand>();
+            container.Register<ICommand, VolumeCommand>();
             container.Register<ICommand, StopCommand>();
             container.Register<ICommand, StatusCommand>();
             container.Register<ICommand, VolumeUpCommand>();

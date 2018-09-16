@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FakeItEasy;
 using plr.Commands;
@@ -14,7 +15,9 @@ namespace test.Commands
         [Fact]
         public void Create()
         {
-            var command = new HelpCommand((s) => { });
+            var commands = A.Fake<IEnumerable<ICommand>>();
+
+            var command = new HelpCommand((s) => { }, commands);
             Assert.NotNull(command);
         }
 
@@ -22,20 +25,25 @@ namespace test.Commands
         public async Task Execute()
         {
             var output = A.Fake<Action<string>>();
-            var command = new HelpCommand(output);
+            var command = A.Fake<ICommand>();
+            var commands = new [] { command };
 
-            var result = await command.Execute(new string[0]);
-            A.CallTo(output).MustHaveHappenedANumberOfTimesMatching(n => n == 11);
+            var helpCommand = new HelpCommand(output, commands);
+
+            var result = await helpCommand.Execute(new string[0]);
+            A.CallTo(output).MustHaveHappenedANumberOfTimesMatching(n => n == 2);
             Assert.Equal(CommandResult.OK, result);
         }
 
         [Fact]
         public void CheckName()
         {
-            var command = new HelpCommand((s) => { });
+            var commands = A.Fake<IEnumerable<ICommand>>();
+            var command = new HelpCommand((s) => { }, commands);
 
             Assert.Contains("-h", command.Name);
             Assert.Contains("--help", command.Name);
+            Assert.Contains("Show help information", command.Description);
         }
     }
 }

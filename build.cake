@@ -6,11 +6,37 @@
 // Start-Process -FilePath 'dotnet' -ArgumentList 'run --debug'
 
 var target = Argument("target", "Default");
+string api_key;
+#l key.cake
 
 Task("Clean")
     .Does(() =>
 {
     CleanDirectory("./artifacts/");
+    DotNetCoreClean("./plr.sln");
+});
+
+Task("Pack")
+  .Does(() =>
+{
+    var settings = new DotNetCorePackSettings
+    {
+        Configuration = "Release",
+        OutputDirectory = "./artifacts/"
+    };
+    DotNetCorePack("./plr.sln", settings);
+});
+
+Task("Push")
+  .Does(() =>
+{
+    var settings = new DotNetCoreNuGetPushSettings
+     {
+         Source = "https://api.nuget.org/v3/index.json",
+         ApiKey = api_key,
+         WorkingDirectory = "./artifacts"
+     };
+    DotNetCoreNuGetPush("*.nupkg", settings);
 });
 
 Task("Build")
@@ -70,5 +96,10 @@ Task("Coverage")
     .IsDependentOn("Build")
     .IsDependentOn("Test-With-Coverage")
     .IsDependentOn("Generate-Coverage");
+
+Task("Publish")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Pack")
+    .IsDependentOn("Push");
 
 RunTarget(target);

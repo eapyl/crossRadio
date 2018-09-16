@@ -11,19 +11,24 @@ namespace plr.Commands
     {
         private readonly ILogger _log;
         private readonly Action<string> _output;
+        private readonly IConfigurationProvider _configurationProvider;
         private readonly IStationProvider _stationProvider;
         private readonly IRadio _radio;
 
         public string[] Name => new [] { "-p", "--play" };
 
+        public string Description => "Play selected station using {ID} argument";
+
         public PlayCommand(
             ILogger log,
             Action<string> output,
             IStationProvider stationProvider,
+            IConfigurationProvider configurationProvider,
             IRadio radio)
         {
             _log = log;
             _output = output;
+            _configurationProvider = configurationProvider;
             _stationProvider = stationProvider;
             _radio = radio;
         }
@@ -40,12 +45,23 @@ namespace plr.Commands
                     _log.Error("There is no station with selected ID.");
                     return CommandResult.Error;
                 }
-                _radio.Play(station.Uri.First().ToString());
-                return CommandResult.OK;
+                var link = station.Uri.First().ToString();
+                _radio.Play(link);
+                await UpdateConfiguration(link);
             }
-             _output("Can't parse ID");
-            _log.Error("Id of station should be number.");
-            return CommandResult.Error;
+            else
+            {
+                var configuration = await _configurationProvider.Load();
+                 _radio.Play(configuration.DefaultLink);
+            }
+            return CommandResult.OK;
+        }
+
+        private async Task UpdateConfiguration(string link)
+        {
+            var configuration = await _configurationProvider.Load();
+            configuration.DefaultLink = link;
+            await _configurationProvider.Upload(configuration);
         }
     }
 }

@@ -14,6 +14,8 @@ namespace plr.Commands
 
         public string[] Name => new [] { "-l", "--list" };
 
+        public string Description => "Show all stations from database";
+
         public ListCommand(ILogger log, Action<string> output, IStationProvider stationProvider)
         {
             _log = log;

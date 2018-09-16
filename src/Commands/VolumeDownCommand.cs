@@ -11,30 +11,34 @@ namespace plr.Commands
     {
         private readonly ILogger _log;
         private readonly IRadio _radio;
+        private readonly IConfigurationProvider _configurationProvider;
 
         public string[] Name => new [] { "-vd", "--volumeDown" };
 
+        public string Description => "Decrease volume by 10%";
+
         public VolumeDownCommand(
             ILogger log,
+            IConfigurationProvider configurationProvider,
             IRadio radio)
         {
             _log = log;
             _radio = radio;
+            _configurationProvider = configurationProvider;
         }
 
-        public Task<CommandResult> Execute(IEnumerable<string> parameters)
+        public async Task<CommandResult> Execute(IEnumerable<string> parameters)
         {
             _log.Verbose("Received volume Down command.");
-            if (parameters.Any() && Int32.TryParse(parameters.First(), out int deltaDown))
-            {
-                _log.Verbose($"Decrease volume by {deltaDown}");
-                _radio.VolumeDown(deltaDown);
-            }
-            else
-            {
-                _radio.VolumeDown();
-            }
-            return Task.FromResult(CommandResult.OK);
+            await UpdateConfiguration(_radio.VolumeDown());
+            return CommandResult.OK;
+        }
+
+        private async Task UpdateConfiguration(double volume)
+        {
+             var configuration = await _configurationProvider.Load();
+            configuration.Volume = volume.ToString();
+            await _configurationProvider.Upload(configuration);
         }
     }
 }

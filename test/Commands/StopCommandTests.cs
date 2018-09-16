@@ -46,6 +46,7 @@ namespace test.Commands
 
             Assert.Contains("-s", command.Name);
             Assert.Contains("--stop", command.Name);
+            Assert.Contains("Stop playing and exit", command.Description);
         }
     }
 }

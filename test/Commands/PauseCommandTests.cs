@@ -46,6 +46,7 @@ namespace test.Commands
 
             Assert.Contains("-pa", command.Name);
             Assert.Contains("--pause", command.Name);
+            Assert.Contains("Pause playing", command.Description);
         }
     }
 }

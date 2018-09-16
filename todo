@@ -1,5 +1,5 @@
 ☐ Add proxy for bass library and use it in Radio class
-☐ Recover playing after long pause @bug @1.0.4 @started(18-08-30 23:01)
+☐ Recover playing after long pause @bug @1.0.5
 ☐ Support different output device @bug
 ☐ Ask to use standard repository when changing database url
 ☐ Save previous volume @enhancement @1.0.4 @started(18-08-30 23:01)
@@ -9,6 +9,9 @@
 ☐ Save previous played radio station @enhancement @1.0.4 @started(18-08-30 23:01)
 ☐ Add pagination to search results @enhancement
 ☐ Allow possibility to search stations @enhancement
+✔ Set level of volume directly @enhancement @started(18-09-16 13:32) @done(18-09-16 14:39) @lasted(1h7m3s)
+✔ collect description and command for HelpCommand automatically @started(18-09-16 13:34) @done(18-09-16 13:50) @lasted(16m47s)
+☐ Select playing device (headset, speaker and so on) @enhancement
 Archive:
     ✔ Add status command to understand what is going on @enhancement @1.0.4 @started(18-08-30 23:01) @done(18-08-30 23:01) @lasted(32s)
     ✔ Use ManagedBass instead custom class @1.0.4 @done(18-08-30 22:43)

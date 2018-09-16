@@ -16,6 +16,8 @@ namespace plr.Commands
 
         public string[] Name => new [] { "-d", "--database" };
 
+        public string Description => "Change {link} to database (default value is https://raw.githubusercontent.com/eapyl/radio-stations/master/db.json)";
+
         public DatabaseCommand(
             ILogger log,
             Action<string> output,

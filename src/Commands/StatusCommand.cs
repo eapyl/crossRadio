@@ -15,6 +15,8 @@ namespace plr.Commands
 
         public string[] Name => new [] { string.Empty };
 
+        public string Description => "Show status of radio";
+
         public StatusCommand(
             ILogger log,
             Action<string> output,

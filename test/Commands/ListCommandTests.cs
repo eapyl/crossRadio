@@ -49,6 +49,7 @@ namespace test.Commands
 
             Assert.Contains("-l", command.Name);
             Assert.Contains("--list", command.Name);
+            Assert.Contains("Show all stations from database", command.Description);
         }
     }
 }

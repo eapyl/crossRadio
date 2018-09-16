@@ -19,8 +19,9 @@ namespace test.Commands
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
             var stationProvider = A.Fake<IStationProvider>();
+            var provider = A.Fake<IConfigurationProvider>();
 
-            var command = new PlayCommand(log, s => {}, stationProvider, radio);
+            var command = new PlayCommand(log, s => { }, stationProvider, provider, radio);
             Assert.NotNull(command);
         }
 
@@ -30,11 +31,18 @@ namespace test.Commands
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
             var stationProvider = A.Fake<IStationProvider>();
+            var provider = A.Fake<IConfigurationProvider>();
 
-            var command = new PlayCommand(log, s => {}, stationProvider, radio);
+            var configuration = new Configuration() { DefaultLink = "http:://test" };
+
+            A.CallTo(() => provider.Load()).Returns(Task.FromResult(configuration));
+
+            var command = new PlayCommand(log, s => { }, stationProvider, provider, radio);
 
             var result = await command.Execute(new string[0]);
-            Assert.Equal(CommandResult.Error, result);
+
+            A.CallTo(() => radio.Play(A<string>.That.IsEqualTo("http:://test"))).MustHaveHappened();
+            Assert.Equal(CommandResult.OK, result);
         }
 
         [Fact]
@@ -43,12 +51,13 @@ namespace test.Commands
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
             var stationProvider = A.Fake<IStationProvider>();
+            var provider = A.Fake<IConfigurationProvider>();
 
-            A.CallTo(() => stationProvider.Search(0)).Returns(new Station{Uri = new[] { "http:://test" }});
+            A.CallTo(() => stationProvider.Search(0)).Returns(new Station { Uri = new[] { "http:://test" } });
 
-            var command = new PlayCommand(log, s => {}, stationProvider, radio);
+            var command = new PlayCommand(log, s => { }, stationProvider, provider, radio);
 
-            var result = await command.Execute(new string[]{ "0" });
+            var result = await command.Execute(new string[] { "0" });
             A.CallTo(() => radio.Play(A<string>.That.IsEqualTo("http:://test"))).MustHaveHappened();
             Assert.Equal(CommandResult.OK, result);
         }
@@ -59,12 +68,13 @@ namespace test.Commands
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
             var stationProvider = A.Fake<IStationProvider>();
+            var provider = A.Fake<IConfigurationProvider>();
 
             A.CallTo(() => stationProvider.Search(0)).Returns<Station>(null);
 
-            var command = new PlayCommand(log, s => {}, stationProvider, radio);
+            var command = new PlayCommand(log, s => { }, stationProvider, provider, radio);
 
-            var result = await command.Execute(new string[]{ "0" });
+            var result = await command.Execute(new string[] { "0" });
             Assert.Equal(CommandResult.Error, result);
         }
 
@@ -74,11 +84,13 @@ namespace test.Commands
             var log = A.Fake<ILogger>();
             var radio = A.Fake<IRadio>();
             var stationProvider = A.Fake<IStationProvider>();
+            var provider = A.Fake<IConfigurationProvider>();
 
-            var command = new PlayCommand(log, s => {}, stationProvider, radio);
+            var command = new PlayCommand(log, s => { }, stationProvider, provider, radio);
 
             Assert.Contains("-p", command.Name);
             Assert.Contains("--play", command.Name);
+            Assert.Contains("Play selected station using {ID} argument", command.Description);
         }
     }
 }

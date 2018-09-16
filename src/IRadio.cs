@@ -1,14 +1,17 @@
+using System.Threading.Tasks;
+
 namespace plr
 {
     internal interface IRadio
     {
-        bool Init();
+        Task<bool> Init();
         void Play(string uri);
         void Pause();
         void Start();
         void Stop();
-        void VolumeUp(int delta = 10);
-        void VolumeDown(int delta = 10);
+        double VolumeUp();
+        double VolumeDown();
+        double Volume(int value);
         string Status();
     }
 }
