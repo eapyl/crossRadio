@@ -9,6 +9,7 @@ namespace plr
 {
     internal class MainLoop : IMainLoop
     {
+        private readonly Action<string> _output;
         private readonly Func<string> _input;
         private readonly ILogger _log;
         private readonly IRadio _radio;
@@ -18,8 +19,10 @@ namespace plr
             Func<string> input,
             ILogger log,
             IRadio radio,
+            Action<string> output,
             IEnumerable<ICommand> commands)
         {
+            _output = output;
             _input = input;
             _log = log;
             _radio = radio;
@@ -38,6 +41,7 @@ namespace plr
                 }
 
                 _log.Information("Listen command");
+                _output("Application is ready.");
 
                 while (true)
                 {

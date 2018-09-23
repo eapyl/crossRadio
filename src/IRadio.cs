@@ -1,8 +1,9 @@
+using System;
 using System.Threading.Tasks;
 
 namespace plr
 {
-    internal interface IRadio
+    internal interface IRadio : IDisposable
     {
         Task<bool> Init();
         void Play(string uri);

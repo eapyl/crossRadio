@@ -70,7 +70,6 @@ Task("Test-With-Coverage")
     var settings = new DotNetCoreTestSettings
     {
         Configuration = "Debug",
-        OutputDirectory = "./../artifacts/",
         ArgumentCustomization = args =>
             args.Append("/p:CollectCoverage=true")
                 .Append("/p:CoverletOutputFormat=opencover")
@@ -93,7 +92,6 @@ Task("Default")
 
 Task("Coverage")
     .IsDependentOn("Clean")
-    .IsDependentOn("Build")
     .IsDependentOn("Test-With-Coverage")
     .IsDependentOn("Generate-Coverage");
 

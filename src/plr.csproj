@@ -15,9 +15,9 @@
     <LangVersion>latest</LangVersion>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>radio</ToolCommandName>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <PackageReleaseNotes>Update version</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/eapyl/crossRadio/blob/master/todo</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

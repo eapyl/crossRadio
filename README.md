@@ -36,4 +36,6 @@ To see supported commands:
 
 All descriptions of station are hosted at [GitHub](https://github.com/eapyl/radio-stations/blob/master/db.json).
 
+List task is [todo](https://github.com/eapyl/crossRadio/blob/master/todo).
+
 

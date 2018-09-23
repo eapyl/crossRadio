@@ -20,8 +20,9 @@ namespace test
             var configurationProvider = A.Fake<IConfigurationProvider>();
             var radio = A.Fake<IRadio>();
             var input = A.Fake<Func<string>>();
+            var output = A.Fake<Action<string>>();
 
-            var loop = new MainLoop(input, log, radio, new ICommand[0]);
+            var loop = new MainLoop(input, log, radio, output, new ICommand[0]);
             Assert.NotNull(loop);
         }
 
@@ -33,13 +34,14 @@ namespace test
             var radio = A.Fake<IRadio>();
             var input = A.Fake<Func<string>>();
             var command = A.Fake<ICommand>();
+            var output = A.Fake<Action<string>>();
 
             A.CallTo(() => input()).Returns("-h");
             A.CallTo(() => command.Name).Returns(new []{"-h"});
             A.CallTo(() => radio.Init()).Returns(true);
             A.CallTo(() => command.Execute(A<IEnumerable<string>>._)).Returns(CommandResult.Exit);
 
-            var loop = new MainLoop(input, log, radio, new ICommand[]{command});
+            var loop = new MainLoop(input, log, radio, output, new ICommand[]{command});
             await loop.Run();
 
             A.CallTo(() => log.Error(A<string>._)).MustNotHaveHappened();
@@ -52,8 +54,9 @@ namespace test
             var configurationProvider = A.Fake<IConfigurationProvider>();
             var radio = A.Fake<IRadio>();
             var input = A.Fake<Func<string>>();
+            var output = A.Fake<Action<string>>();
 
-            var loop = new MainLoop(input, log, radio, new ICommand[0]);
+            var loop = new MainLoop(input, log, radio, output, new ICommand[0]);
             await loop.Run();
 
             A.CallTo(() => log.Error(A<string>._)).MustHaveHappened();
@@ -67,13 +70,14 @@ namespace test
             var radio = A.Fake<IRadio>();
             var input = A.Fake<Func<string>>();
             var command = A.Fake<ICommand>();
+            var output = A.Fake<Action<string>>();
 
             A.CallTo(() => input()).Returns("-h");
             A.CallTo(() => command.Name).Returns(new []{"-h"});
             A.CallTo(() => radio.Init()).Returns(true);
             A.CallTo(() => command.Execute(A<IEnumerable<string>>._)).Throws(x => new NotImplementedException());
 
-            var loop = new MainLoop(input, log, radio, new ICommand[]{command});
+            var loop = new MainLoop(input, log, radio, output, new ICommand[]{command});
             await loop.Run();
 
             A.CallTo(() => log.Error(A<string>._, A<Exception>._)).MustHaveHappened();
@@ -88,6 +92,7 @@ namespace test
             var input = A.Fake<Func<string>>();
             var commandHelp = A.Fake<ICommand>();
             var commandStop = A.Fake<ICommand>();
+            var output = A.Fake<Action<string>>();
 
             A.CallTo(() => input()).ReturnsNextFromSequence("-h", "-s");
             A.CallTo(() => commandHelp.Name).Returns(new []{"-h"});
@@ -96,7 +101,7 @@ namespace test
             A.CallTo(() => commandHelp.Execute(A<IEnumerable<string>>._)).Returns(CommandResult.OK);
             A.CallTo(() => commandStop.Execute(A<IEnumerable<string>>._)).Returns(CommandResult.Exit);
 
-            var loop = new MainLoop(input, log, radio, new ICommand[]{ commandHelp, commandStop });
+            var loop = new MainLoop(input, log, radio, output, new ICommand[]{ commandHelp, commandStop });
             await loop.Run();
 
             A.CallTo(() => log.Error(A<string>._)).MustNotHaveHappened();
