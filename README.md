@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/eapyl/crossRadio.svg?branch=master)](https://travis-ci.org/eapyl/crossRadio)
+[![Latest version](https://img.shields.io/nuget/v/plr.svg)](https://www.nuget.org/packages/Hangfire.MySql.Core/) 
 
 # Dotnet global tool to listen radio
 
