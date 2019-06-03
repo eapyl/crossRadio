@@ -16,7 +16,7 @@ dotnet tool install --global plr
 Listen
 * using powershell:
 ```
-start radio
+radio
 ```
 * using cmd
 ```
@@ -26,7 +26,7 @@ radio
 Common way to start listening the first radio from the list:
 ```
 -l
--p 1
+-p 0
 ```
 
 To see supported commands:
