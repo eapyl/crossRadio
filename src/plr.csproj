@@ -9,9 +9,9 @@
     <Owners>Yauhen Pyl</Owners>
     <PackageLicenseUrl>https://github.com/eapyl/crossRadio/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/eapyl/crossRadio</PackageProjectUrl>
-    <Copyright>Copyright 2017-2018</Copyright>
+    <Copyright>Copyright 2017-2019</Copyright>
     <PackageTags>Radio, Dotnet, Tool</PackageTags>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>latest</LangVersion>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>radio</ToolCommandName>
@@ -21,9 +21,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DryIoc.dll" Version="3.0.2" />
-    <PackageReference Include="FluentValidation" Version="8.0.100" />
-    <PackageReference Include="Flurl.Http" Version="2.3.1" />
+    <PackageReference Include="DryIoc.dll" Version="4.0.4" />
+    <PackageReference Include="FluentValidation" Version="8.4.0" />
+    <PackageReference Include="Flurl.Http" Version="2.4.2" />
     <PackageReference Include="ManagedBass" Version="2.0.4" />
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
   </ItemGroup>

@@ -44,7 +44,7 @@ Task("Build")
 {
     var settings = new DotNetCoreBuildSettings
     {
-        Framework = "netcoreapp2.1",
+        Framework = "netcoreapp2.2",
         Configuration = "Debug",
         OutputDirectory = "./artifacts/"
     };
@@ -74,6 +74,7 @@ Task("Test-With-Coverage")
             args.Append("/p:CollectCoverage=true")
                 .Append("/p:CoverletOutputFormat=opencover")
                 .Append("/p:Exclude=\"[plr]plr.BassLib*\"")
+                .Append("/p:Include=[plr*]*")
     };
 
     DotNetCoreTest("./test/plr-tests.csproj", settings);

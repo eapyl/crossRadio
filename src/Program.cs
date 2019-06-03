@@ -37,6 +37,7 @@ namespace plr
             container.Register<ICommand, StatusCommand>();
             container.Register<ICommand, VolumeUpCommand>();
             container.Register<ICommand, VolumeDownCommand>();
+            container.Register<ICurrentDeviceMonitor, CurrentDeviceMonitor>(Reuse.Singleton);
             container.Register<IMainLoop, MainLoop>(reuse: Reuse.Singleton);
 
             return container;

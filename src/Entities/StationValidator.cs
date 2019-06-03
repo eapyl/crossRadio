@@ -4,7 +4,8 @@ namespace plr.Entities
 {
     internal class StationValidator : AbstractValidator<Station>
     {
-        public StationValidator() {
+        public StationValidator()
+        {
             RuleFor(x => x.Uri).Must(x => x.Length > 0);
             RuleForEach(x => x.Uri).NotEmpty();
             RuleFor(x => x.Country).NotEmpty();

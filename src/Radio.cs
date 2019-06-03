@@ -19,6 +19,7 @@ namespace plr
         private int _req = 0;
         private static readonly object Lock = new object();
         private readonly ILogger _log = null;
+        private readonly ICurrentDeviceMonitor _deviceMonitor;
         private readonly IConfigurationProvider _configurationProvider = null;
         private string _status = string.Empty;
         private string _icyMeta = string.Empty;
@@ -26,9 +27,11 @@ namespace plr
 
         public Radio(
             IConfigurationProvider configurationProvider,
+            ICurrentDeviceMonitor deviceMonitor,
             ILogger log)
         {
             _log = log;
+            _deviceMonitor = deviceMonitor;
             _configurationProvider = configurationProvider;
             _timer = new Timer(_timer_Tick);
         }
@@ -76,6 +79,8 @@ namespace plr
                 }
 
                 _chan = c; // this is now the current stream
+                // monitor output device changing so we will play always on firth device
+                _deviceMonitor.Start(_chan);
                 _url = uri;
             }
 
@@ -212,6 +217,7 @@ namespace plr
         public void Dispose()
         {
             Bass.Free();
+            _timer.Dispose();
         }
     }
 }

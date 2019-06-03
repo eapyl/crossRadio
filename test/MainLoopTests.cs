@@ -78,7 +78,7 @@ namespace test
             A.CallTo(() => command.Execute(A<IEnumerable<string>>._)).Throws(x => new NotImplementedException());
 
             var loop = new MainLoop(input, log, radio, output, new ICommand[]{command});
-            await loop.Run();
+            await Assert.ThrowsAsync<NotImplementedException>(() => loop.Run());
 
             A.CallTo(() => log.Error(A<string>._, A<Exception>._)).MustHaveHappened();
         }
