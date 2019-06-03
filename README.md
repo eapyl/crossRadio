@@ -5,6 +5,8 @@
 
 > Supported OS: Windows
 
+Feel free to use **Issues** to ask/comment/suggest.
+
 To install:
 
 ```
