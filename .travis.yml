@@ -3,7 +3,7 @@ solution: plr.sln
 dist: trusty
 sudo: required
 mono: none
-dotnet: 2.1.401
+dotnet: 2.2.203
 script:
     - dotnet build
     - dotnet test ./test/plr-tests.csproj
