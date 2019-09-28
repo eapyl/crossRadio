@@ -31,11 +31,11 @@ Task("Push")
   .Does(() =>
 {
     var settings = new DotNetCoreNuGetPushSettings
-     {
-         Source = "https://api.nuget.org/v3/index.json",
-         ApiKey = api_key,
-         WorkingDirectory = "./artifacts"
-     };
+    {
+        Source = "https://api.nuget.org/v3/index.json",
+        ApiKey = api_key,
+        WorkingDirectory = "./artifacts"
+    };
     DotNetCoreNuGetPush("*.nupkg", settings);
 });
 

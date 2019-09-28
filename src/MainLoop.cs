@@ -34,12 +34,6 @@ namespace plr
             try
             {
                 _log.Verbose("Start main loop");
-                if (!(await _radio.Init()))
-                {
-                    _log.Error("Can't init bass library");
-                    return;
-                }
-
                 _log.Information("Listen command");
                 _output("Application is ready.");
 

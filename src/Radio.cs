@@ -1,223 +1,291 @@
 using System;
 using Serilog;
-using Serilog.Core;
 using plr.Providers;
-using ManagedBass;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using System.Threading;
+using NAudio.Wave;
+using System.Net;
+using System.IO;
+using NAudio.Wave.SampleProviders;
+using System.Linq;
 
 namespace plr
 {
     internal class Radio : IRadio
     {
-        private string _url = string.Empty;
-        private int _chan = 0;
-        private int deltaVolume = 10;
-        private double _volume = 0.2;
+        enum StreamingPlaybackState
+        {
+            Stopped,
+            Playing,
+            Buffering,
+            Paused
+        }
+
         private readonly Timer _timer;
-        private int _req = 0;
-        private static readonly object Lock = new object();
         private readonly ILogger _log = null;
-        private readonly ICurrentDeviceMonitor _deviceMonitor;
-        private readonly IConfigurationProvider _configurationProvider = null;
-        private string _status = string.Empty;
+        private volatile StreamingPlaybackState playbackState;
+        private volatile bool fullyDownloaded;
+        private BufferedWaveProvider bufferedWaveProvider;
+        private IWavePlayer waveOut;
+        private VolumeWaveProvider16 volumeProvider;
+        private HttpWebRequest webRequest;
         private string _icyMeta = string.Empty;
         private string _titleAndArtist = string.Empty;
+        private string _uri;
+
+        private MeteringSampleProvider vuMeter = null;
+        public double LevelLeftValue = 0;
+        public double LevelRightValue = 0;
+        private ReadFullyStream readFullyStream;
+        private double bufferedSeconds;
 
         public Radio(
             IConfigurationProvider configurationProvider,
-            ICurrentDeviceMonitor deviceMonitor,
             ILogger log)
         {
             _log = log;
-            _deviceMonitor = deviceMonitor;
-            _configurationProvider = configurationProvider;
-            _timer = new Timer(_timer_Tick);
+            _timer = new Timer(Timer_Tick);
         }
 
-        public async Task<bool> Init()
+        private bool IsBufferNearlyFull =>
+            bufferedWaveProvider != null &&
+                bufferedWaveProvider.BufferLength - bufferedWaveProvider.BufferedBytes
+                    < bufferedWaveProvider.WaveFormat.AverageBytesPerSecond / 4;
+
+        private void StreamMp3(object state)
         {
-            var configuration = await _configurationProvider.Load();
-            _volume =  Convert.ToDouble(configuration.Volume);
-            var result = Bass.Init();
-            Bass.NetPreBuffer = 0;
-            return result;
+            fullyDownloaded = false;
+            var url = (string)state;
+            webRequest = (HttpWebRequest)WebRequest.Create(url);
+            webRequest.Headers.Clear();
+            webRequest.Headers.Add("Icy-MetaData", "1");
+            HttpWebResponse resp;
+            var metaInt = 0;
+            try
+            {
+                resp = (HttpWebResponse)webRequest.GetResponse();
+                if (resp.Headers.AllKeys.Contains("icy-metaint"))
+                {
+                    metaInt = Convert.ToInt32(resp.GetResponseHeader("icy-metaint"));
+                }
+            }
+            catch (WebException e)
+            {
+                if (e.Status != WebExceptionStatus.RequestCanceled)
+                {
+                    _log.Error(e.Message);
+                }
+                return;
+            }
+            var buffer = new byte[16384 * 4]; // needs to be big enough to hold a decompressed frame
+
+            IMp3FrameDecompressor decompressor = null;
+            try
+            {
+                using (var responseStream = resp.GetResponseStream())
+                {
+                    readFullyStream = new ReadFullyStream(responseStream, metaInt);
+                    do
+                    {
+                        if (IsBufferNearlyFull)
+                        {
+                            _log.Verbose("Buffer getting full, taking a break");
+                            Thread.Sleep(500);
+                        }
+                        else
+                        {
+                            Mp3Frame frame;
+                            try
+                            {
+                                frame = Mp3Frame.LoadFromStream(readFullyStream);
+                            }
+                            catch (EndOfStreamException)
+                            {
+                                fullyDownloaded = true;
+                                // reached the end of the MP3 file / stream
+                                break;
+                            }
+                            catch (WebException)
+                            {
+                                // probably we have aborted download from the GUI thread
+                                break;
+                            }
+                            if (frame == null) break;
+                            if (decompressor == null)
+                            {
+                                // don't think these details matter too much - just help ACM select the right codec
+                                // however, the buffered provider doesn't know what sample rate it is working at
+                                // until we have a frame
+                                decompressor = CreateFrameDecompressor(frame);
+                                bufferedWaveProvider = new BufferedWaveProvider(decompressor.OutputFormat);
+                                bufferedWaveProvider.BufferDuration =
+                                    TimeSpan.FromSeconds(20); // allow us to get well ahead of ourselves
+                                //this.bufferedWaveProvider.BufferedDuration = 250;
+                            }
+                            int decompressed = decompressor.DecompressFrame(frame, buffer, 0);
+                            //Debug.WriteLine(String.Format("Decompressed a frame {0}", decompressed));
+                            bufferedWaveProvider.AddSamples(buffer, 0, decompressed);
+                        }
+                    } while (playbackState != StreamingPlaybackState.Stopped);
+                    _log.Verbose("Exiting");
+                    // was doing this in a finally block, but for some reason
+                    // we are hanging on response stream .Dispose so never get there
+                    decompressor.Dispose();
+                }
+            }
+            finally
+            {
+                if (decompressor != null)
+                {
+                    decompressor.Dispose();
+                }
+            }
         }
+
+        private static IMp3FrameDecompressor CreateFrameDecompressor(Mp3Frame frame) =>
+            new AcmMp3FrameDecompressor(new Mp3WaveFormat(
+                frame.SampleRate,
+                frame.ChannelMode == ChannelMode.Mono ? 1 : 2,
+                frame.FrameLength,
+                frame.BitRate));
 
         public void Play(string uri)
         {
             _log.Verbose($"Start playing {uri}");
+            _uri = uri;
 
-            _titleAndArtist = _icyMeta = string.Empty;
-
-            int r;
-
-            lock (Lock) // make sure only 1 thread at a time can do the following
-                r = ++_req; // increment the request counter for this request
-
-            _timer.Change(Timeout.Infinite, Timeout.Infinite); // stop prebuffer monitoring
-
-            Bass.StreamFree(_chan); // close old stream
-
-            _status = "Connecting...";
-
-            var c = Bass.CreateStream(uri, 0,
-                BassFlags.StreamDownloadBlocks | BassFlags.StreamStatus | BassFlags.AutoFree, StatusProc,
-                new IntPtr(r));
-
-            Bass.ChannelSetAttribute(c, ChannelAttribute.Volume, _volume);
-
-            lock (Lock)
+            if (playbackState == StreamingPlaybackState.Stopped)
             {
-                if (r != _req)
+                playbackState = StreamingPlaybackState.Buffering;
+                bufferedWaveProvider = null;
+                ThreadPool.QueueUserWorkItem(StreamMp3, uri);
+                _timer.Change(0, 1000);
+            }
+            else if (playbackState == StreamingPlaybackState.Paused)
+            {
+                playbackState = StreamingPlaybackState.Buffering;
+            }
+        }
+
+        private IWavePlayer CreateWaveOut() => new NAudio.Wave.WaveOutEvent();
+
+        private void OnPlaybackStopped(object sender, StoppedEventArgs e)
+        {
+            _log.Debug("Playback Stopped");
+            if (e.Exception != null)
+            {
+                _log.Error(string.Format("Playback Error {0}", e.Exception.Message));
+            }
+        }
+
+        private void Meter_StreamVolume(Object sender, StreamVolumeEventArgs e)
+        {
+            try
+            {
+                LevelLeftValue = Math.Truncate(e.MaxSampleValues[0] * 150);
+                LevelRightValue = Math.Truncate(e.MaxSampleValues[1] * 150);
+            }
+            catch
+            {
+                LevelLeftValue = 0;
+                LevelRightValue = 0;
+            }
+        }
+
+        private void Timer_Tick(Object stateInfo)
+        {
+            if (playbackState == StreamingPlaybackState.Stopped)
+            {
+                return;
+            }
+            if (waveOut == null && bufferedWaveProvider != null)
+            {
+                _log.Verbose("Creating WaveOut Device");
+                waveOut = CreateWaveOut();
+                waveOut.PlaybackStopped += OnPlaybackStopped;
+                volumeProvider = new VolumeWaveProvider16(bufferedWaveProvider);
+                volumeProvider.Volume = 0.05F;
+                vuMeter = new MeteringSampleProvider(volumeProvider.ToSampleProvider());
+                waveOut.Init(new SampleToWaveProvider(vuMeter));
+                vuMeter.StreamVolume += Meter_StreamVolume;
+                //waveOut.Init(volumeProvider);
+                //progressBarBuffer.Maximum = (int)bufferedWaveProvider.BufferDuration.TotalMilliseconds;
+            }
+            else if (bufferedWaveProvider != null)
+            {
+                bufferedSeconds = bufferedWaveProvider.BufferedDuration.TotalSeconds;
+                // make it stutter less if we buffer up a decent amount before playing
+                if (bufferedSeconds < 0.5 && playbackState == StreamingPlaybackState.Playing && !fullyDownloaded)
                 {
-                    // there is a newer request, discard this stream
-                    if (c != 0)
-                        Bass.StreamFree(c);
-                    return;
+                    Pause();
                 }
-
-                _chan = c; // this is now the current stream
-                // monitor output device changing so we will play always on firth device
-                _deviceMonitor.Start(_chan);
-                _url = uri;
-            }
-
-            if (_chan == 0)
-            {
-                // failed to open
-                _status = "Can't play the stream";
-            }
-            else _timer.Change(0, 100); // start prebuffer monitoring
-        }
-
-        void _timer_Tick(Object stateInfo)
-        {
-            // percentage of buffer filled
-            var progress = Bass.StreamGetFilePosition(_chan, FileStreamPosition.Buffer)
-                * 100 / Bass.StreamGetFilePosition(_chan, FileStreamPosition.End);
-
-            if (progress > 75 || Bass.StreamGetFilePosition(_chan, FileStreamPosition.Connected) == 0)
-            {
-                // over 75% full (or end of download)
-                _timer.Change(Timeout.Infinite, Timeout.Infinite); // finished prebuffering, stop monitoring
-
-                _status = "Playing";
-
-                foreach (TagType value in Enum.GetValues(typeof(TagType)))
+                else if (bufferedSeconds > 4 && playbackState == StreamingPlaybackState.Buffering)
                 {
-                    var tagPtr = Bass.ChannelGetTags(_chan, value);
-                    if (tagPtr == IntPtr.Zero) continue;
-
-                    foreach (var tag in Extensions.ExtractMultiStringAnsi(tagPtr))
-                    {
-                        if (tag.StartsWith("icy-name:"))
-                            _icyMeta += tag + ";";
-
-                        if (tag.StartsWith("icy-url:"))
-                            _icyMeta += tag + ";";
-
-                        _log.Verbose($"{Enum.GetName(typeof(TagType), value)}: {tag}");
-                    }
+                    Start();
                 }
-
-                // get the stream title and set sync for subsequent titles
-                GetTitle();
-
-                Bass.ChannelSetSync(_chan, SyncFlags.MetadataReceived, 0, MetaSync); // Shoutcast
-                Bass.ChannelSetSync(_chan, SyncFlags.OggChange, 0, MetaSync); // Icecast/OGG
-
-                // set sync for end of stream
-                Bass.ChannelSetSync(_chan, SyncFlags.End, 0, EndSync);
-
-                // play it!
-                Bass.ChannelPlay(_chan);
-            }
-
-            else _status = $"Buffering... {progress}%";
-        }
-
-        void EndSync(int Handle, int Channel, int Data, IntPtr User) => _status = "Not Playing";
-
-        void MetaSync(int Handle, int Channel, int Data, IntPtr User) => GetTitle();
-
-        private string FormatString(string value) => string.IsNullOrEmpty(value) ? string.Empty : $"\n{value}";
-
-        public string Status() => $"{_status}; Volume:{_volume * 100}%;{FormatString(_titleAndArtist)}{FormatString(_icyMeta)}";
-
-        void StatusProc(IntPtr buffer, int length, IntPtr user)
-        {
-            if (buffer != IntPtr.Zero
-                && length == 0
-                && user.ToInt32() == _req) // got HTTP/ICY tags, and this is still the current request
-
-                _status = Marshal.PtrToStringAnsi(buffer); // display status
-        }
-
-        public void Pause() => Bass.Pause();
-
-        public void Start() => Bass.Start();
-
-        public void Stop() => Bass.Stop();
-
-        public double VolumeUp() => UpdateVolume(_volume + AdjustVolumeDelta(deltaVolume));
-
-        public double VolumeDown() => UpdateVolume(_volume - AdjustVolumeDelta(deltaVolume));
-
-        public double Volume(int value) => UpdateVolume(AdjustVolumeDelta(value));
-
-        private double UpdateVolume(double volume)
-        {
-            if (volume >= 0 && volume <= 1)
-            {
-                _log.Verbose($"New volume {volume}");
-                _volume = volume;
-                Bass.ChannelSetAttribute(_chan, ChannelAttribute.Volume, _volume);
-            }
-            return _volume;
-        }
-
-        void GetTitle()
-        {
-            var meta = Bass.ChannelGetTags(_chan, TagType.META);
-
-            if (meta != IntPtr.Zero)
-            {
-                // got Shoutcast metadata
-                var data = Marshal.PtrToStringUTF8(meta);
-
-                _titleAndArtist = data;
-            }
-            else
-            {
-                meta = Bass.ChannelGetTags(_chan, TagType.OGG);
-
-                if (meta == IntPtr.Zero)
-                    return;
-
-                // got Icecast/OGG tags
-                foreach (var tag in Extensions.ExtractMultiStringUtf8(meta))
+                else if (fullyDownloaded && bufferedSeconds == 0)
                 {
-                    string artist = null, title = null;
-
-                    if (tag.StartsWith("artist="))
-                        artist = tag;
-
-                    if (tag.StartsWith("title="))
-                        title = tag;
-
-                    if (title != null)
-                        _titleAndArtist = artist != null ? $"{title} - {artist}" : title;
+                    _log.Verbose("Reached end of stream");
+                    Stop();
                 }
             }
         }
 
-        private double AdjustVolumeDelta(int delta) => delta * 1.0 / 100;
+        public void Start()
+        {
+            waveOut.Play();
+            _log.Debug(String.Format("Started playing, waveOut.PlaybackState={0}", waveOut.PlaybackState));
+            playbackState = StreamingPlaybackState.Playing;
+        }
+
+        public void Pause()
+        {
+            playbackState = StreamingPlaybackState.Buffering;
+            waveOut.Pause();
+            _log.Debug(String.Format("Paused to buffer, waveOut.PlaybackState={0}", waveOut.PlaybackState));
+        }
+
+        public string Status() => string.Join(Environment.NewLine, new []
+        {
+            $"{_uri}",
+            $"Volume - {volumeProvider.Volume}",
+            readFullyStream.MetadataHeader,
+            bufferedSeconds > 0 ? $"Buffered {bufferedSeconds} sec" : string.Empty
+        });
+
+        public void Stop()
+        {
+            if (playbackState == StreamingPlaybackState.Stopped)
+            {
+                return;
+            }
+            if (!fullyDownloaded)
+            {
+                webRequest.Abort();
+            }
+
+            playbackState = StreamingPlaybackState.Stopped;
+            if (waveOut != null)
+            {
+                waveOut.Stop();
+                waveOut.Dispose();
+                waveOut = null;
+                vuMeter.StreamVolume -= Meter_StreamVolume;
+                vuMeter = null;
+            }
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            LevelLeftValue = 0;
+            LevelRightValue = 0;
+            // n.b. streaming thread may not yet have exited
+            Thread.Sleep(500);
+            bufferedSeconds = 0;
+        }
+
+        public double Volume(int value) => volumeProvider.Volume = value > 100 ? 1f : (value * 1.0f) / 100;
+
         public void Dispose()
         {
-            Bass.Free();
-            _timer.Dispose();
+            _timer?.Dispose();
+            readFullyStream?.Dispose();
         }
     }
 }

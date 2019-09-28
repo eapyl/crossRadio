@@ -46,6 +46,7 @@ namespace plr.Commands
                     return CommandResult.Error;
                 }
                 var link = station.Uri.First().ToString();
+                _radio.Stop();
                 _radio.Play(link);
                 await UpdateConfiguration(link);
             }
