@@ -49,7 +49,7 @@ namespace plr
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (receivedBytes == _icyMetaInt)
+            if (receivedBytes == _icyMetaInt && _icyMetaInt > 0)
             {
                 var metaLen = _sourceStream.ReadByte();
                 if (metaLen > 0)
